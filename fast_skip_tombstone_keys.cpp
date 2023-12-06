@@ -3,6 +3,7 @@
 #include <rocksdb/options.h>
 #include <rocksdb/iterator.h>
 #include <cstdio>
+#include <filesystem>
 
 int main()
 {
@@ -11,15 +12,17 @@ int main()
     rocksdb::Options options;
     options.create_if_missing = true;
 
+    std::string dbPath = "./out/fast_skip_tombstone_keys.db";
+
+    std::filesystem::remove_all(dbPath);
+
     // Open the database
-    rocksdb::Status status = rocksdb::DB::Open(options, "./out/test.db", &db);
+    rocksdb::Status status = rocksdb::DB::Open(options, dbPath, &db);
     if (!status.ok())
     {
         std::cerr << "Unable to open/create RocksDB: " << status.ToString() << std::endl;
         return 1;
     }
-
-    db->CompactRange(nullptr, nullptr);
 
     // Define a buffer for the formatted string
     char keyBuffer[10];
@@ -27,7 +30,7 @@ int main()
     // Write keys from 1 to 20
     for (int i = 1; i <= 20; ++i)
     {
-        sprintf(keyBuffer, "%02d", i); // Format the integer with leading zeros
+        snprintf(keyBuffer, strlen(keyBuffer), "%02d", i); // Format the integer with leading zeros
         std::string key = keyBuffer;
         db->Put(rocksdb::WriteOptions(), key, "value" + key);
     }
@@ -35,7 +38,7 @@ int main()
     // Delete keys from 5 to 15
     for (int i = 5; i <= 15; ++i)
     {
-        sprintf(keyBuffer, "%02d", i); // Format the integer with leading zeros
+        snprintf(keyBuffer, strlen(keyBuffer), "%02d", i); // Format the integer with leading zeros
         std::string key = keyBuffer;
         db->Delete(rocksdb::WriteOptions(), key);
     }

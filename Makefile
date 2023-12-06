@@ -2,7 +2,7 @@
 
 # Compiler settings
 CXX = g++
-CXXFLAGS = -std=c++11 -I/usr/local/include -o2
+CXXFLAGS = -std=c++17 -I/usr/local/include -o2
 LDFLAGS = -L/usr/local/lib -lrocksdb -lpthread -lbz2 -lz
 
 
